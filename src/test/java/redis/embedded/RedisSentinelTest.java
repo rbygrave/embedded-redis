@@ -1,7 +1,5 @@
 package redis.embedded;
 
-//import com.google.common.collect.Sets;
-
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisSentinelPool;
@@ -49,11 +47,8 @@ public class RedisSentinelTest {
     TimeUnit.SECONDS.sleep(1);
 
     //when
-    JedisSentinelPool pool = null;
-    Jedis jedis = null;
-    try {
-      pool = new JedisSentinelPool("mymaster", Collections.singleton("localhost:26379"));
-      jedis = pool.getResource();
+    JedisSentinelPool pool = new JedisSentinelPool("mymaster", Collections.singleton("localhost:26379"));
+    try (Jedis jedis = pool.getResource()) {
       jedis.mset("abc", "1", "def", "2");
 
       //then
@@ -61,8 +56,6 @@ public class RedisSentinelTest {
       assertEquals("2", jedis.mget("def").get(0));
       assertEquals(null, jedis.mget("xyz").get(0));
     } finally {
-      if (jedis != null)
-        pool.returnResource(jedis);
       sentinel.stop();
       server.stop();
     }

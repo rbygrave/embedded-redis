@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -104,14 +105,10 @@ public class RedisClusterTest {
     cluster.start();
 
     //when
-    JedisSentinelPool pool = null;
-    Jedis jedis = null;
-    try {
-      pool = new JedisSentinelPool("ourmaster", Collections.singleton("localhost:26379"));
-      jedis = testPool(pool);
+    JedisSentinelPool pool = new JedisSentinelPool("ourmaster", Collections.singleton("localhost:26379"));
+    try (Jedis jedis = testPool(pool)) {
+      assertNotNull(jedis);
     } finally {
-      if (jedis != null)
-        pool.returnResource(jedis);
       cluster.stop();
     }
   }
@@ -123,14 +120,10 @@ public class RedisClusterTest {
     cluster.start();
 
     //when
-    JedisSentinelPool pool = null;
-    Jedis jedis = null;
-    try {
-      pool = new JedisSentinelPool("ourmaster", asSet("localhost:26379"));
-      jedis = testPool(pool);
+    JedisSentinelPool pool = new JedisSentinelPool("ourmaster", asSet("localhost:26379"));
+    try (Jedis jedis = testPool(pool)) {
+      assertNotNull(jedis);
     } finally {
-      if (jedis != null)
-        pool.returnResource(jedis);
       cluster.stop();
     }
   }
@@ -142,14 +135,10 @@ public class RedisClusterTest {
     cluster.start();
 
     //when
-    JedisSentinelPool pool = null;
-    Jedis jedis = null;
-    try {
-      pool = new JedisSentinelPool("ourmaster", asSet("localhost:26379"));
-      jedis = testPool(pool);
+    JedisSentinelPool pool = new JedisSentinelPool("ourmaster", asSet("localhost:26379"));
+    try (Jedis jedis = testPool(pool)){
+      assertNotNull(jedis);
     } finally {
-      if (jedis != null)
-        pool.returnResource(jedis);
       cluster.stop();
     }
   }
@@ -161,14 +150,10 @@ public class RedisClusterTest {
     cluster.start();
 
     //when
-    JedisSentinelPool pool = null;
-    Jedis jedis = null;
-    try {
-      pool = new JedisSentinelPool("ourmaster", asSet("localhost:26379", "localhost:26380"));
-      jedis = testPool(pool);
+    JedisSentinelPool pool = new JedisSentinelPool("ourmaster", asSet("localhost:26379", "localhost:26380"));
+    try (Jedis jedis = testPool(pool)) {
+      assertNotNull(jedis);
     } finally {
-      if (jedis != null)
-        pool.returnResource(jedis);
       cluster.stop();
     }
   }
@@ -188,14 +173,10 @@ public class RedisClusterTest {
     final Set<String> sentinelHosts = JedisUtil.portsToJedisHosts(sentinelPorts);
 
     //when
-    JedisSentinelPool pool = null;
-    Jedis jedis = null;
-    try {
-      pool = new JedisSentinelPool("ourmaster", sentinelHosts);
-      jedis = testPool(pool);
+    JedisSentinelPool pool = new JedisSentinelPool("ourmaster", sentinelHosts);
+    try (Jedis jedis = testPool(pool)) {
+      assertNotNull(jedis);
     } finally {
-      if (jedis != null)
-        pool.returnResource(jedis);
       cluster.stop();
     }
   }
@@ -214,9 +195,9 @@ public class RedisClusterTest {
     cluster.start();
 
     //when
-    JedisSentinelPool pool1 = null;
-    JedisSentinelPool pool2 = null;
-    JedisSentinelPool pool3 = null;
+    JedisSentinelPool pool1;
+    JedisSentinelPool pool2;
+    JedisSentinelPool pool3;
     Jedis jedis1 = null;
     Jedis jedis2 = null;
     Jedis jedis3 = null;
@@ -229,11 +210,11 @@ public class RedisClusterTest {
       jedis3 = testPool(pool3);
     } finally {
       if (jedis1 != null)
-        pool1.returnResource(jedis1);
+        jedis1.close();
       if (jedis2 != null)
-        pool2.returnResource(jedis2);
+        jedis2.close();
       if (jedis3 != null)
-        pool3.returnResource(jedis3);
+        jedis3.close();
       cluster.stop();
     }
   }
@@ -253,9 +234,9 @@ public class RedisClusterTest {
     final Set<String> sentinelHosts = JedisUtil.sentinelHosts(cluster);
 
     //when
-    JedisSentinelPool pool1 = null;
-    JedisSentinelPool pool2 = null;
-    JedisSentinelPool pool3 = null;
+    JedisSentinelPool pool1;
+    JedisSentinelPool pool2;
+    JedisSentinelPool pool3;
     Jedis jedis1 = null;
     Jedis jedis2 = null;
     Jedis jedis3 = null;
@@ -268,18 +249,17 @@ public class RedisClusterTest {
       jedis3 = testPool(pool3);
     } finally {
       if (jedis1 != null)
-        pool1.returnResource(jedis1);
+        jedis1.close();
       if (jedis2 != null)
-        pool2.returnResource(jedis2);
+        jedis2.close();
       if (jedis3 != null)
-        pool3.returnResource(jedis3);
+        jedis3.close();
       cluster.stop();
     }
   }
 
   private Jedis testPool(JedisSentinelPool pool) {
-    Jedis jedis;
-    jedis = pool.getResource();
+    Jedis jedis = pool.getResource();
     jedis.mset("abc", "1", "def", "2");
 
     //then
