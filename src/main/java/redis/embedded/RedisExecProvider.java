@@ -1,7 +1,5 @@
 package redis.embedded;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import redis.embedded.util.Architecture;
 import redis.embedded.util.JarUtil;
 import redis.embedded.util.OS;
@@ -9,55 +7,60 @@ import redis.embedded.util.OsArchitecture;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class RedisExecProvider {
-    
-    private final Map<OsArchitecture, String> executables = Maps.newHashMap();
 
-    public static RedisExecProvider defaultProvider() {
-        return new RedisExecProvider();
-    }
-    
-    private RedisExecProvider() {
-        initExecutables();
-    }
+  private final Map<OsArchitecture, String> executables = new HashMap<>();
 
-    private void initExecutables() {
-        executables.put(OsArchitecture.WINDOWS_x86, "redis-server-2.8.19.exe");
-        executables.put(OsArchitecture.WINDOWS_x86_64, "redis-server-2.8.19.exe");
+  public static RedisExecProvider defaultProvider() {
+    return new RedisExecProvider();
+  }
 
-        executables.put(OsArchitecture.UNIX_x86, "redis-server-2.8.19-32");
-        executables.put(OsArchitecture.UNIX_x86_64, "redis-server-2.8.19");
+  private RedisExecProvider() {
+    initExecutables();
+  }
 
-        executables.put(OsArchitecture.MAC_OS_X_x86, "redis-server-2.8.19.app");
-        executables.put(OsArchitecture.MAC_OS_X_x86_64, "redis-server-2.8.19.app");
-    }
+  private void initExecutables() {
+//        executables.put(OsArchitecture.WINDOWS_x86, "redis-server-2.8.19.exe");
+//        executables.put(OsArchitecture.WINDOWS_x86_64, "redis-server-2.8.19.exe");
 
-    public RedisExecProvider override(OS os, String executable) {
-        Preconditions.checkNotNull(executable);
-        for (Architecture arch : Architecture.values()) {
-            override(os, arch, executable);
-        }
-        return this;
-    }
+    //executables.put(OsArchitecture.UNIX_x86, "redis-server-2.8.19-32");
+    executables.put(OsArchitecture.UNIX_x86_64, "redis-server-3.0.6");
 
-    public RedisExecProvider override(OS os, Architecture arch, String executable) {
-        Preconditions.checkNotNull(executable);
-        executables.put(new OsArchitecture(os, arch), executable);
-        return this;
-    }
-    
-    public File get() throws IOException {
-        OsArchitecture osArch = OsArchitecture.detect();
-        String executablePath = executables.get(osArch);
-         return fileExists(executablePath) ?
-                new File(executablePath) :
-                JarUtil.extractExecutableFromJar(executablePath);
-        
-    }
+//        executables.put(OsArchitecture.MAC_OS_X_x86, "redis-server-2.8.19.app");
+//        executables.put(OsArchitecture.MAC_OS_X_x86_64, "redis-server-2.8.19.app");
+  }
 
-    private boolean fileExists(String executablePath) {
-        return new File(executablePath).exists();
+  public RedisExecProvider override(OS os, String executable) {
+    Objects.requireNonNull(executable, "executable is null");
+    for (Architecture arch : Architecture.values()) {
+      override(os, arch, executable);
     }
+    return this;
+  }
+
+  public RedisExecProvider override(OS os, Architecture arch, String executable) {
+    Objects.requireNonNull(executable, "executable is null");
+    executables.put(new OsArchitecture(os, arch), executable);
+    return this;
+  }
+
+  public File get() throws IOException {
+    OsArchitecture osArch = OsArchitecture.detect();
+    String executablePath = executables.get(osArch);
+    if (executablePath == null) {
+      throw new RuntimeException("Sorry, no embedded executable for OS Arch: " + osArch);
+    }
+    return fileExists(executablePath) ?
+        new File(executablePath) :
+        JarUtil.extractExecutableFromJar(executablePath);
+
+  }
+
+  private boolean fileExists(String executablePath) {
+    return new File(executablePath).exists();
+  }
 }
