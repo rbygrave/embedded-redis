@@ -10,7 +10,7 @@
 
     <groupId>org.avaje.test</groupId>
     <artifactId>embedded-redis</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1</version>
     <name>embedded-redis</name>
     <packaging>jar</packaging>
 
@@ -20,7 +20,7 @@
 
     <scm>
         <developerConnection>scm:git:git@github.com:rbygrave/embedded-redis.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>embedded-redis-1.1</tag>
     </scm>
 
     <dependencies>
