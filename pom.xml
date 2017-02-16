@@ -8,7 +8,7 @@
     <name>embedded-redis</name>
     <description>Redis embedded server for Java integration testing</description>
 
-    <url>https://github.com/kstyrc/embedded-redis</url>
+    <url>https://github.com/rbygrave/embedded-redis</url>
 
     <parent>
         <groupId>org.avaje</groupId>
@@ -17,7 +17,7 @@
     </parent>
 
     <scm>
-        <developerConnection>scm:git:https://github.com/kstyrc/embedded-redis.git</developerConnection>
+        <developerConnection>scm:git:git@github.com:rbygrave/embedded-redis.git</developerConnection>
     </scm>
 
     <dependencies>
